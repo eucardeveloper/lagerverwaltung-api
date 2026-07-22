@@ -1,17 +1,18 @@
 package com.enesucar.lagerverwaltung.service;
 
 import com.enesucar.lagerverwaltung.entity.Produkt;
+import com.enesucar.lagerverwaltung.exception.ResourceNotFoundException;
 import com.enesucar.lagerverwaltung.repository.ProduktRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ProduktService {
 
-    @Autowired
-    private ProduktRepository produktRepository;
+    private final ProduktRepository produktRepository;
 
     public List<Produkt> alleProdukteAbrufen() {
         return produktRepository.findAll();
@@ -23,12 +24,13 @@ public class ProduktService {
 
     public Produkt produktFinden(Long id) {
         return produktRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produkt nicht gefunden: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Produkt nicht gefunden: " + id));
     }
 
     public void produktLoeschen(Long id) {
+        if (!produktRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Produkt nicht gefunden: " + id);
+        }
         produktRepository.deleteById(id);
     }
-
-
 }

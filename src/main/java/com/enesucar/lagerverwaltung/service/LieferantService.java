@@ -1,17 +1,18 @@
 package com.enesucar.lagerverwaltung.service;
 
 import com.enesucar.lagerverwaltung.entity.Lieferant;
+import com.enesucar.lagerverwaltung.exception.ResourceNotFoundException;
 import com.enesucar.lagerverwaltung.repository.LieferantRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LieferantService {
 
-    @Autowired
-    private LieferantRepository lieferantRepository;
+    private final LieferantRepository lieferantRepository;
 
     public List<Lieferant> alleLieferantenAbrufen() {
         return lieferantRepository.findAll();
@@ -23,10 +24,13 @@ public class LieferantService {
 
     public Lieferant lieferantFinden(Long id) {
         return lieferantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Lieferant nicht gefunden: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Lieferant nicht gefunden: " + id));
     }
 
     public void lieferantLoeschen(Long id) {
+        if (!lieferantRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Lieferant nicht gefunden: " + id);
+        }
         lieferantRepository.deleteById(id);
     }
 }

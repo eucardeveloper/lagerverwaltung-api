@@ -3,22 +3,21 @@ package com.enesucar.lagerverwaltung.service;
 import com.enesucar.lagerverwaltung.entity.Bewegungsart;
 import com.enesucar.lagerverwaltung.entity.Lagerbewegung;
 import com.enesucar.lagerverwaltung.entity.Produkt;
+import com.enesucar.lagerverwaltung.exception.ResourceNotFoundException;
 import com.enesucar.lagerverwaltung.repository.LagerbewegungRepository;
 import com.enesucar.lagerverwaltung.repository.ProduktRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LagerbewegungService {
 
-    @Autowired
-    private LagerbewegungRepository lagerbewegungRepository;
-
-    @Autowired
-    private ProduktRepository produktRepository;
+    private final LagerbewegungRepository lagerbewegungRepository;
+    private final ProduktRepository produktRepository;
 
     public List<Lagerbewegung> alleBewegungenAbrufen() {
         return lagerbewegungRepository.findAll();
@@ -26,7 +25,7 @@ public class LagerbewegungService {
 
     public Lagerbewegung bewegungErfassen(Long produktId, Integer menge, Bewegungsart art) {
         Produkt produkt = produktRepository.findById(produktId)
-                .orElseThrow(() -> new RuntimeException("Produkt nicht gefunden: " + produktId));
+                .orElseThrow(() -> new ResourceNotFoundException("Produkt nicht gefunden: " + produktId));
 
         if (art == Bewegungsart.AUSGANG && produkt.getBestand() < menge) {
             throw new RuntimeException("Nicht genug Bestand vorhanden!");
